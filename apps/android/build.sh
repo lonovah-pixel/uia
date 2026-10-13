@@ -64,7 +64,7 @@ step "Ресурсы и манифест (aapt)"
   -A "$OUT/assets" \
   -I "$ANDROID_JAR" \
   -J "$OUT/gen" \
-  -F "$OUT/app-unsigned.apk" \
+  -F "$OUT/unsigned.ap_" \
   --min-sdk-version "$MIN_SDK" \
   --target-sdk-version "$TARGET_SDK" \
   --version-code "$VERSION_CODE" \
@@ -83,10 +83,10 @@ if [[ -n "$D8" ]]; then
 else
   "$DX" --dex --min-sdk-version="$MIN_SDK" --output="$OUT/classes.dex" "$OUT/classes.jar"
 fi
-(cd "$OUT" && "$AAPT" add app-unsigned.apk classes.dex > /dev/null)
+(cd "$OUT" && "$AAPT" add unsigned.ap_ classes.dex > /dev/null)
 
 step "Выравнивание и подпись"
-"$ZIPALIGN" -f -p 4 "$OUT/app-unsigned.apk" "$OUT/app-aligned.apk"
+"$ZIPALIGN" -f -p 4 "$OUT/unsigned.ap_" "$OUT/aligned.ap_"
 
 if [[ -z "${KEYSTORE:-}" ]]; then
   KEYSTORE="$HERE/debug.keystore"
@@ -106,7 +106,7 @@ APK="$OUT/taxi-all-in-one-$VERSION_NAME.apk"
 "$APKSIGNER" sign \
   --ks "$KEYSTORE" --ks-pass env:KEYSTORE_PASSWORD \
   --ks-key-alias "${KEY_ALIAS:?Задайте KEY_ALIAS}" --key-pass env:KEY_PASSWORD \
-  --out "$APK" "$OUT/app-aligned.apk"
+  --out "$APK" "$OUT/aligned.ap_"
 "$APKSIGNER" verify "$APK"
 
 step "Готово: $APK ($(du -h "$APK" | cut -f1))"
