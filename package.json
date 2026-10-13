@@ -1,0 +1,27 @@
+{
+  "name": "uia",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Такси «всё в одном»: сравнение цен всех агрегаторов такси в одном приложении",
+  "type": "module",
+  "workspaces": [
+    "packages/core",
+    "apps/server",
+    "apps/web"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,green \"npm run dev -w @uia/server\" \"npm run dev -w @uia/web\"",
+    "build": "npm run build -w @uia/web",
+    "start": "npm run start -w @uia/server",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "check": "npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "typescript": "^5.9.3"
+  }
+}

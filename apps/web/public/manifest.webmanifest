@@ -1,0 +1,16 @@
+{
+  "name": "Такси всё в одном",
+  "short_name": "Такси",
+  "description": "Сравнение цен такси всех агрегаторов и выбор самого выгодного тарифа",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f5f7",
+  "theme_color": "#ffcc00",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
