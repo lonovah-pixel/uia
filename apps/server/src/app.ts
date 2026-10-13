@@ -1,17 +1,21 @@
 import { existsSync } from 'node:fs';
 import rateLimit from '@fastify/rate-limit';
 import fastifyStatic from '@fastify/static';
-import { PROVIDERS, RIDE_CLASSES, haversineKm, type ProviderSummary, type QuoteRequest } from '@uia/core';
+import {
+  RIDE_CLASSES,
+  createGeocoder,
+  createHttpClient,
+  createLiveAdapters,
+  createQuoteService,
+  createRouter,
+  summarizeProviders,
+  validateTrip,
+  type FetchFn,
+  type ProviderSummary,
+  type QuoteRequest,
+} from '@uia/core';
 import Fastify, { type FastifyInstance } from 'fastify';
-import { createLiveAdapters } from './adapters/index.ts';
 import type { Config } from './config.ts';
-import { createGeocoder } from './geocoding.ts';
-import { createHttpClient, type FetchFn } from './http.ts';
-import { createQuoteService } from './quotes.ts';
-import { createRouter } from './routing.ts';
-
-/** Дальше этого расстояния такси не заказывают — скорее всего, точка выбрана по ошибке. */
-const MAX_TRIP_KM = 500;
 
 const placeSchema = {
   type: 'object',
@@ -76,24 +80,11 @@ export async function buildApp({ config, fetch: fetchFn = fetch, logger = false 
 
   app.get('/api/health', async () => ({ ok: true }));
 
-  app.get('/api/providers', async (): Promise<ProviderSummary[]> =>
-    PROVIDERS.map((p) => ({
-      id: p.id,
-      name: p.name,
-      logo: p.logo,
-      color: p.color,
-      textColor: p.textColor,
-      website: p.website,
-      live: adapters.get(p.id)?.enabled ?? false,
-      classes: [...new Set(p.tariffs.map((t) => t.rideClass))],
-    })),
-  );
+  app.get('/api/providers', async (): Promise<ProviderSummary[]> => summarizeProviders(adapters));
 
   app.post<{ Body: QuoteRequest }>('/api/quotes', { schema: { body: quoteBodySchema } }, async (req, reply) => {
-    const { from, to } = req.body;
-    if (haversineKm(from, to) > MAX_TRIP_KM) {
-      return reply.code(400).send({ error: `Маршрут длиннее ${MAX_TRIP_KM} км — для такси слишком далеко` });
-    }
+    const error = validateTrip(req.body.from, req.body.to);
+    if (error) return reply.code(400).send({ error });
     return quotes.getQuotes(req.body);
   });
 

@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { uberRideClass } from '../src/adapters/uber.ts';
-import { TtlCache } from '../src/cache.ts';
-import { createHttpClient } from '../src/http.ts';
-import { fakeFetch } from './helpers.ts';
+import { TtlCache, createHttpClient, uberRideClass, type FetchFn } from '../src/index.ts';
+
+/** Поддельный fetch: подстрока URL → ответ; неизвестные адреса — сетевая ошибка. */
+function fakeFetch(routes: Record<string, () => Response>): FetchFn {
+  return async (input) => {
+    const url = String(input);
+    for (const [pattern, handler] of Object.entries(routes)) if (url.includes(pattern)) return handler();
+    throw new TypeError('fetch failed');
+  };
+}
 
 describe('TtlCache', () => {
   it('забывает записи по истечении времени жизни', () => {
@@ -40,6 +46,25 @@ describe('HTTP-клиент', () => {
   it('сообщает о недоступной сети', async () => {
     const http = createHttpClient(fakeFetch({}), 1000, 'ua');
     await expect(http.getJson('https://y.test/a')).rejects.toThrow('y.test: сеть недоступна');
+  });
+
+  it('прерывает зависший запрос по таймауту', async () => {
+    const hanging: FetchFn = (_url, init) =>
+      new Promise((_resolve, reject) => init?.signal?.addEventListener('abort', () => reject(new Error('aborted'))));
+    const http = createHttpClient(hanging, 20);
+    await expect(http.getJson('https://slow.test/a')).rejects.toThrow('slow.test: таймаут');
+  });
+
+  it('добавляет User-Agent, только если он задан', async () => {
+    const seen: Record<string, string>[] = [];
+    const capture: FetchFn = async (_url, init) => {
+      seen.push(init?.headers ?? {});
+      return Response.json({});
+    };
+    await createHttpClient(capture, 1000).getJson('https://a.test/');
+    await createHttpClient(capture, 1000, 'my-app').getJson('https://a.test/');
+    expect(seen[0]).not.toHaveProperty('User-Agent');
+    expect(seen[1]!['User-Agent']).toBe('my-app');
   });
 });
 

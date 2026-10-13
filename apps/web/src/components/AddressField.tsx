@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { GeoPoint, GeocodeResult, Place } from '@uia/core';
-import { geocode } from '../api.ts';
+import { useBackend } from '../backend.ts';
 
 interface Option {
   key: string;
@@ -32,6 +32,7 @@ const toPlace = (r: GeocodeResult): Place => ({
 
 export function AddressField({ label, letter, kind, value, near, recent, placeholder, onChange, onLocate, locating }: Props) {
   const id = useId();
+  const backend = useBackend();
   const inputRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState(value?.name ?? '');
   const [open, setOpen] = useState(false);
@@ -51,7 +52,8 @@ export function AddressField({ label, letter, kind, value, near, recent, placeho
     const controller = new AbortController();
     const timer = setTimeout(() => {
       setSearching(true);
-      geocode(query, near, controller.signal)
+      backend
+        .geocode(query, near, controller.signal)
         .then((r) => {
           setResults(r);
           setError(null);
@@ -65,7 +67,7 @@ export function AddressField({ label, letter, kind, value, near, recent, placeho
       clearTimeout(timer);
       controller.abort();
     };
-  }, [query, isTyping, near]);
+  }, [query, isTyping, near, backend]);
 
   const options: Option[] = isTyping
     ? results.map((r, i) => ({ key: `r${i}`, title: r.name, subtitle: r.address, icon: '📍', place: toPlace(r) }))

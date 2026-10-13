@@ -18,7 +18,8 @@
     "start": "npm run start -w @uia/server",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "check": "npm run typecheck && npm test"
+    "check": "npm run typecheck && npm test",
+    "apk": "bash apps/android/build.sh"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

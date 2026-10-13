@@ -1,4 +1,4 @@
-import type { CityProfile, Place, Quote, RouteInfo } from '@uia/core';
+import type { CityProfile, Place, Quote, RouteInfo } from '../../types.ts';
 
 export interface LiveContext {
   from: Place;

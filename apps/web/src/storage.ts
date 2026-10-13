@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { DEFAULT_VALUE_OF_TIME, type Place, type RideClass, type SortMode } from '@uia/core';
+import { DEFAULT_VALUE_OF_TIME, EMPTY_API_KEYS, type ApiKeys, type Place, type RideClass, type SortMode } from '@uia/core';
 
 export interface Settings {
   /** Отключённые пользователем агрегаторы (новые агрегаторы включены по умолчанию). */
@@ -7,6 +7,8 @@ export interface Settings {
   valueOfTimePerMin: number;
   sort: SortMode;
   rideClass: RideClass | 'all';
+  /** Ключи API агрегаторов — только в мобильном приложении, хранятся на устройстве. */
+  apiKeys: ApiKeys;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -14,6 +16,7 @@ export const DEFAULT_SETTINGS: Settings = {
   valueOfTimePerMin: DEFAULT_VALUE_OF_TIME,
   sort: 'best',
   rideClass: 'all',
+  apiKeys: EMPTY_API_KEYS,
 };
 
 // localStorage может быть недоступен (приватный режим, запрет cookies) — тогда просто не запоминаем

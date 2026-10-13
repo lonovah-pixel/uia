@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#F4F5F7</color>
+    <color name="status_bar">#15171A</color>
+    <color name="icon_background">#FFCC00</color>
+
+    <!-- Светлая тема: WebView сообщает странице prefers-color-scheme: light -->
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/status_bar</item>
+        <item name="android:navigationBarColor">@color/status_bar</item>
+    </style>
+</resources>

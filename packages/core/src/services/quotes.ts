@@ -1,25 +1,24 @@
-import {
-  PROVIDERS,
-  demandLevel,
-  detectCity,
-  estimateProviderQuotes,
-  localTime,
-  rankQuotes,
-  roundCoord,
-  trafficFactor,
-  type ProviderInfo,
-  type ProviderStatus,
-  type Quote,
-  type QuoteRequest,
-  type QuoteResponse,
-  type RouteInfo,
-} from '@uia/core';
+import { detectCity } from '../cities.ts';
+import { estimateProviderQuotes } from '../estimate.ts';
+import { haversineKm, roundCoord } from '../geo.ts';
+import { PROVIDERS } from '../providers.ts';
+import { rankQuotes } from '../rank.ts';
+import { demandLevel, localTime, trafficFactor } from '../time.ts';
+import type { GeoPoint, ProviderInfo, ProviderStatus, Quote, QuoteRequest, QuoteResponse, RouteInfo } from '../types.ts';
 import type { LiveAdapter, LiveContext } from './adapters/index.ts';
 import { TtlCache } from './cache.ts';
 import type { Router } from './routing.ts';
 
 /** Москва — UTC+3: часовой пояс по умолчанию, если город неизвестен и клиент его не прислал. */
 const DEFAULT_TZ_OFFSET_MIN = 180;
+
+/** Дальше этого расстояния такси не заказывают — скорее всего, точка выбрана по ошибке. */
+export const MAX_TRIP_KM = 500;
+
+/** Текст ошибки, если маршрут не подходит для такси, иначе null. */
+export function validateTrip(from: GeoPoint, to: GeoPoint): string | null {
+  return haversineKm(from, to) > MAX_TRIP_KM ? `Маршрут длиннее ${MAX_TRIP_KM} км — для такси слишком далеко` : null;
+}
 
 interface ProviderResult {
   quotes: Quote[];

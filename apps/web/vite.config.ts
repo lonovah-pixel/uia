@@ -1,7 +1,7 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   server: {
     port: 5173,
@@ -12,7 +12,8 @@ export default defineConfig({
     proxy: { '/api': 'http://localhost:3000' },
   },
   build: {
-    outDir: 'dist',
-    sourcemap: true,
+    // Мобильная сборка упаковывается в APK — там карты исходников не нужны
+    outDir: mode === 'mobile' ? 'dist-mobile' : 'dist',
+    sourcemap: mode !== 'mobile',
   },
-});
+}));

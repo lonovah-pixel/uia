@@ -1,5 +1,5 @@
 import { loadConfig, type Config } from '../src/config.ts';
-import type { FetchFn } from '../src/http.ts';
+import type { FetchFn } from '@uia/core';
 
 type Handler = (url: URL, init?: RequestInit) => unknown;
 

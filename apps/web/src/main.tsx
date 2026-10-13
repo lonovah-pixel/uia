@@ -10,7 +10,8 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 );
 
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+// В мобильном приложении файлы и так лежат на устройстве — service worker не нужен
+if (import.meta.env.PROD && import.meta.env.VITE_STANDALONE !== 'true' && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {
       // без офлайн-режима приложение всё равно работает

@@ -1,4 +1,5 @@
-import { roundCoord, type GeoPoint, type GeocodeResult } from '@uia/core';
+import { roundCoord } from '../geo.ts';
+import type { GeoPoint, GeocodeResult } from '../types.ts';
 import { TtlCache } from './cache.ts';
 import type { HttpClient } from './http.ts';
 

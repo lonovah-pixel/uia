@@ -1,4 +1,6 @@
-import { estimateEta, getProvider, type Quote, type RideClass } from '@uia/core';
+import { estimateEta } from '../../estimate.ts';
+import { getProvider } from '../../providers.ts';
+import type { Quote, RideClass } from '../../types.ts';
 import type { HttpClient } from '../http.ts';
 import type { LiveAdapter } from './types.ts';
 

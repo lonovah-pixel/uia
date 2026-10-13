@@ -1,4 +1,5 @@
-import { estimateFreeFlowRoute, roundCoord, type GeoPoint } from '@uia/core';
+import { estimateFreeFlowRoute, roundCoord } from '../geo.ts';
+import type { GeoPoint } from '../types.ts';
 import { TtlCache } from './cache.ts';
 import type { HttpClient } from './http.ts';
 

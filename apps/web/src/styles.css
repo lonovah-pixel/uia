@@ -904,6 +904,30 @@ p {
   font-size: 14px;
 }
 
+.keys {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.key-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.key-field input {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  padding: 8px 10px;
+  font-size: 15px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
 /* ——— Метки на карте ——— */
 
 .map-pin {

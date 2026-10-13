@@ -1,7 +1,10 @@
 node_modules/
 dist/
+dist-mobile/
 coverage/
 *.log
 .env
 .env.local
 .DS_Store
+apps/android/build/
+apps/android/*.keystore

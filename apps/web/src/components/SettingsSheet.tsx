@@ -1,7 +1,34 @@
 import { useEffect, useRef } from 'react';
-import type { ProviderSummary } from '@uia/core';
+import type { ApiKeys, ProviderSummary } from '@uia/core';
+import { useBackend } from '../backend.ts';
 import { DEFAULT_SETTINGS, type Settings } from '../storage.ts';
 import { ProviderLogo } from './QuoteCard.tsx';
+
+interface KeyFieldProps {
+  label: string;
+  value: string;
+  onCommit(value: string): void;
+}
+
+/** Поле ключа сохраняется при потере фокуса, а не на каждую букву: смена ключей пересоздаёт клиент API. */
+function KeyField({ label, value, onCommit }: KeyFieldProps) {
+  return (
+    <label className="key-field">
+      <span className="muted small">{label}</span>
+      <input
+        type="text"
+        defaultValue={value}
+        autoComplete="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        onBlur={(e) => {
+          const next = e.target.value.trim();
+          if (next !== value) onCommit(next);
+        }}
+      />
+    </label>
+  );
+}
 
 interface Props {
   open: boolean;
@@ -13,6 +40,9 @@ interface Props {
 
 export function SettingsSheet({ open, settings, providers, onChange, onClose }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  const backend = useBackend();
+  const keys = settings.apiKeys;
+  const setKeys = (patch: Partial<ApiKeys>) => onChange({ apiKeys: { ...keys, ...patch } });
 
   useEffect(() => {
     const dialog = ref.current;
@@ -88,8 +118,40 @@ export function SettingsSheet({ open, settings, providers, onChange, onClose }: 
           </label>
         </section>
 
+        {backend.local && (
+          // key пересоздаёт поля после сброса настроек
+          <section key={JSON.stringify(keys)}>
+            <h3>Реальные цены (по желанию)</h3>
+            <p className="muted">
+              Без ключей цены оцениваются по тарифам. С ключами партнёрского API Яндекс Go и Uber приложение покажет
+              точные цены этих сервисов. Ключи хранятся только на этом устройстве.
+            </p>
+            <div className="keys">
+              <KeyField
+                label="Яндекс Go — clid"
+                value={keys.yandex.clid}
+                onCommit={(clid) => setKeys({ yandex: { ...keys.yandex, clid } })}
+              />
+              <KeyField
+                label="Яндекс Go — apikey"
+                value={keys.yandex.apiKey}
+                onCommit={(apiKey) => setKeys({ yandex: { ...keys.yandex, apiKey } })}
+              />
+              <KeyField
+                label="Uber — access token"
+                value={keys.uber.accessToken}
+                onCommit={(accessToken) => setKeys({ uber: { accessToken } })}
+              />
+            </div>
+          </section>
+        )}
+
         <footer className="sheet__footer">
-          <button type="button" className="btn btn--ghost" onClick={() => onChange(DEFAULT_SETTINGS)}>
+          <button
+            type="button"
+            className="btn btn--ghost"
+            onClick={() => onChange({ ...DEFAULT_SETTINGS, apiKeys: settings.apiKeys })}
+          >
             Сбросить
           </button>
           <button type="button" className="btn btn--primary" onClick={onClose}>
